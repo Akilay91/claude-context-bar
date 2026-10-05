@@ -42,6 +42,7 @@ Anschließend eine **neue Sitzung** starten. Über dem Eingabefeld erscheint kur
 
 - `/context-bar` blendet den Balken aus oder wieder ein. Die Einstellung bleibt über Sitzungen hinweg erhalten.
 - Der Balken aktualisiert sich bei jeder Nachricht und nach jeder Antwort. Die Werte sind eine lokale Schätzung und kosten keine zusätzlichen Anfragen.
+- Claude bekommt dieselben Werte bei jeder Nachricht als kurze, unsichtbare Zeile mit (`[context-bar] Context window: 23% used …`, etwa 30 Tokens). So kann Claude von sich aus rechtzeitig eine frische Sitzung oder eine Übergabe vorschlagen.
 
 **Zeichen im Kontext-Balken:**
 

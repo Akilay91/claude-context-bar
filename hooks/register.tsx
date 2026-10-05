@@ -52,6 +52,12 @@ const formatReset = (at: number, now: number) => {
 
 const limitColor = (percent: number) => (percent >= 90 ? '#d9534f' : percent >= 70 ? '#e0a020' : '#4caf50')
 
+const contextLine = (snap: Snapshot) => {
+  const limits = snap.limits.map(l => `${l.label} limit ${l.percent}%`).join(' · ')
+  const window = `${snap.percent}% used (${formatTokens(snap.totalTokens)}/${formatTokens(snap.maxTokens)})`
+  return `[context-bar] Context window: ${window}${limits ? ` · ${limits}` : ''}`
+}
+
 async function refresh($: EngineInterface) {
   try {
     const usage = await $.session.usage({ breakdown: 'summary' })
@@ -103,10 +109,13 @@ export const register: Register = on => {
     return result
   })
 
+  // Hand the model the same figures the bar shows, so it can suggest a fresh session in time.
   on('prompt.submit', async ($, e, next) => {
-    void refresh($)
+    await refresh($)
+    const { value: snap } = await $.state.get(snapshot)
+    if (!snap) return next(e)
 
-    return next(e)
+    return next({ ...e, context: [...(e.context ?? []), contextLine(snap)] })
   })
 
   on('command.run', { command: 'context-bar' }, async $ => {
