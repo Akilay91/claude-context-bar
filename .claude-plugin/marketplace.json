@@ -1,0 +1,11 @@
+{
+  "name": "akilay",
+  "owner": { "name": "akilay" },
+  "plugins": [
+    {
+      "name": "context-bar",
+      "source": "./",
+      "description": "Context window as a stacked bar above the prompt, plus 5h and weekly usage limits; toggle with /context-bar"
+    }
+  ]
+}

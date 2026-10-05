@@ -15,8 +15,17 @@ A Claude Code mod that draws the context window as a stacked bar above the promp
 
 ## Install
 
+Inside Claude Code, so it loads in every session:
+
+```
+/plugin marketplace add Akilay91/claude-context-bar
+/plugin install context-bar@akilay
+```
+
+Or for one session only:
+
 ```bash
-git clone <this repo> claude-context-bar
+git clone https://github.com/Akilay91/claude-context-bar
 claude --plugin-dir ./claude-context-bar
 ```
 
