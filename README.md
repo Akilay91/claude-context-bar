@@ -1,6 +1,6 @@
 # context-bar
 
-A Claude Code mod that draws the context window as a stacked bar above the prompt, one color per `/context` category, plus your 5-hour and weekly usage limits.
+Eine Mod für Claude Code. Sie zeigt über dem Eingabefeld, wie voll das Kontextfenster ist (eine Farbe je Kategorie, wie bei `/context`), und darunter den Verbrauch des 5-Stunden- und des Wochenlimits.
 
 ```
 ████████████▒▒▒░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
@@ -8,33 +8,75 @@ A Claude Code mod that draws the context window as a stacked bar above the promp
 5h ███░░░░░░░ 27% · Reset 14:30    Woche █░░░░░░░░░ 8% · Reset Mo 09:00
 ```
 
-- `█` used, by category · `▒` autocompact buffer · `░` free space
-- Limit colors: green below 70 %, yellow from 70 %, red from 90 %
-- Refreshes after every turn, using a local estimate (no extra API calls)
-- `/context-bar` shows or hides it; the choice persists across sessions
+## Installation
 
-## Install
+Voraussetzung: eine aktuelle Version von Claude Code (Terminal oder Code-Tab der Desktop-App).
 
-Inside Claude Code, so it loads in every session:
+Die folgenden zwei Befehle **in Claude Code** eintippen, nicht in die Windows-Eingabeaufforderung. Danach lädt die Mod in jeder neuen Sitzung automatisch.
+
+**Aus dem WEINMANN-GitLab:**
 
 ```
-/plugin marketplace add Akilay91/claude-context-bar
+/plugin marketplace add https://gitlab-free.weinmann.tech/mods-and-skills/context-usage-mod.git
+```
+
+```
 /plugin install context-bar@akilay
 ```
 
-Or for one session only:
+Beim ersten Mal öffnet sich eventuell ein Login-Fenster für GitLab: mit dem eigenen WEINMANN-Konto anmelden.
 
-```bash
-git clone https://github.com/Akilay91/claude-context-bar
-claude --plugin-dir ./claude-context-bar
+**Alternativ von GitHub:**
+
+```
+/plugin marketplace add Akilay91/claude-context-bar
 ```
 
-Works in the terminal and in the desktop app's Code tab.
+```
+/plugin install context-bar@akilay
+```
 
-## Files
+Anschließend eine **neue Sitzung** starten. Über dem Eingabefeld erscheint kurz `Context bar: measuring…`, nach ein, zwei Sekunden der Balken.
 
-- `hooks/register.tsx` — the mod
-- `types/index.d.ts` — its state contract
-- `.claude-plugin/plugin.json` — manifest
+## Bedienung
 
-Check it with `claude plugin validate .`
+- `/context-bar` blendet den Balken aus oder wieder ein. Die Einstellung bleibt über Sitzungen hinweg erhalten.
+- Der Balken aktualisiert sich bei jeder Nachricht und nach jeder Antwort. Die Werte sind eine lokale Schätzung und kosten keine zusätzlichen Anfragen.
+
+**Zeichen im Kontext-Balken:**
+
+| Zeichen | Bedeutung |
+|---|---|
+| `█` farbig | belegt, eine Farbe je Kategorie (Legende darunter) |
+| `▒` | Reserve für das automatische Zusammenfassen (Auto-Compact) |
+| `░` | frei |
+
+**Limits:** grün unter 70 %, gelb ab 70 %, rot ab 90 %. Dahinter steht, wann das Limit zurückgesetzt wird.
+
+## Aktualisieren
+
+```
+/plugin marketplace update akilay
+```
+
+Dann im Menü `/plugin` bei context-bar „Update“ wählen, oder im Terminal:
+
+```bash
+claude plugin update context-bar@akilay
+```
+
+Danach eine neue Sitzung starten.
+
+## Entfernen
+
+```
+/plugin uninstall context-bar@akilay
+```
+
+## Für Entwickler
+
+- `hooks/register.tsx`: die Mod
+- `types/index.d.ts`: ihr State-Vertrag
+- `.claude-plugin/plugin.json`, `.claude-plugin/marketplace.json`: Manifeste
+
+Prüfen mit `claude plugin validate .`, für eine einzelne Sitzung ohne Installation laden mit `claude --plugin-dir <Ordner>`.
