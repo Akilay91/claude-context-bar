@@ -56,7 +56,7 @@ async function refresh($: EngineInterface) {
   try {
     const usage = await $.session.usage({ breakdown: 'summary' })
     const b = usage.context.breakdown
-    if (!b) return
+    if (!b) return false
     const segments: Segment[] = b.categories
       .flatMap(c => (c.kind === 'deferred' ? [] : [{ name: c.name, tokens: c.tokens, color: c.color, kind: c.kind }]))
       // used first, then the compaction buffer, free space at the end of the bar
@@ -70,9 +70,23 @@ async function refresh($: EngineInterface) {
       percent: b.percentage,
     }
     await $.state.set(snapshot, snap)
+    return true
   } catch {
     // no session bound yet, or the breakdown failed: keep the last bar
+    return false
   }
+}
+
+// At startup the session may not be bound yet: retry until the first breakdown lands.
+function refreshUntilReady($: EngineInterface) {
+  const retry = $.clock.every(2000, () => {
+    void refresh($).then(ok => {
+      if (ok) retry.cancel()
+    })
+  })
+  void refresh($).then(ok => {
+    if (ok) retry.cancel()
+  })
 }
 
 export const register: Register = on => {
@@ -83,6 +97,13 @@ export const register: Register = on => {
     })
     const saved = await $.store.get('isVisible')
     await $.state.set(isVisible, saved !== false)
+    const result = await next(e)
+    refreshUntilReady($)
+
+    return result
+  })
+
+  on('prompt.submit', async ($, e, next) => {
     void refresh($)
 
     return next(e)
@@ -111,9 +132,11 @@ export const register: Register = on => {
     const { value: visible = true } = await $.state.get(isVisible)
     if (e.props.hasSurvey || !visible) return next(e)
     const { value: snap } = await $.state.get(snapshot)
-    if (!snap || snap.segments.length === 0) return next(e)
-
     const { Box, Text } = $.ui.resolve(e)
+    if (!snap || snap.segments.length === 0) {
+      return <Text dimColor>Context bar: measuring… (/context-bar hides it)</Text>
+    }
+
     const label = `${snap.percent}% · ${formatTokens(snap.totalTokens)}/${formatTokens(snap.maxTokens)}  `
     // leave room for the band's own padding, which the viewport does not count
     const width = Math.max(10, (e.viewport?.columns ?? 80) - 8)
